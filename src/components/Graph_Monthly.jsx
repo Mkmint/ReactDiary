@@ -5,13 +5,15 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGri
 import Header from './Header';
 import Button from './Button';
 import { useNavigate } from 'react-router-dom';
+import Graph_Modal from './Graph_Modal';
 
 const Graph_Monthly = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
   const data = useContext(DiaryStateContext);
   const [curDate, setCurDate] = useState(new Date());
+  
   const emotion_colors = ['#64c964', '#9dd772', '#FDce17', '#fd8446', '#fd565f'];
-  // 1. 감정 상태 라벨 정의
   const emotion_labels = ['완전좋음', '좋음', '보통', '나쁨', '완전 나쁨'];
 
   // 현재 달의 데이터만 필터링 및 통계 생성
@@ -24,7 +26,6 @@ const Graph_Monthly = () => {
       return itemDate.getFullYear() === year && itemDate.getMonth() === month;
     });
 
-    // 2. id와 index를 사용해 라벨 적용
     return [1, 2, 3, 4, 5].map((id, index) => ({
       name: emotion_labels[index], 
       count: filteredData.filter((item) => item.emotionId === id).length,
@@ -71,21 +72,33 @@ const Graph_Monthly = () => {
         </ResponsiveContainer>
       </div>
 
-      {/* 가장 많은 감정 출력 부분도 라벨에 맞춰 수정 */}
       <div style={{ textAlign: 'center', marginTop: '20px' }}>
-        {maxEmotions.length > 0 ? (
-          <div>
-            <strong>이번 달에 가장 많이 느낀 감정: </strong>
-            {maxEmotions.map((it, idx) => (
-              <span key={it.name} style={{ color: emotion_colors[emotion_labels.indexOf(it.name)], fontWeight: 'bold', margin: '0 5px' }}>
-                {it.name}({it.count}회)
-              </span>
-            ))}
-          </div>
-        ) : (
-          <p>이번 달에는 아직 기록된 감정이 없습니다.</p>
-        )}
+        <Button text={"이번 달에 제일 많이 느낀 감정 확인"} onClick={() => setIsModalOpen(true)} />
       </div>
+
+      {isModalOpen && (
+        <Graph_Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+          <div style={{ textAlign: 'center' }}>
+            <h3>이번 달의 주요 감정</h3>
+            {maxEmotions.length > 0 ? (
+              <p>이번 달에 가장 많이 느낀 감정은 
+                {maxEmotions.map((it) => {
+                  // 색상 로직을 map 내부로 이동하여 에러 해결
+                  const emotionIndex = emotion_labels.indexOf(it.name);
+                  const color = emotion_colors[emotionIndex];
+                  return (
+                    <span key={it.name} style={{ fontWeight: 'bold', color: color, margin: '0 5px' }}> 
+                      {it.name}({it.count}회)
+                    </span>
+                  );
+                })} 입니다!
+              </p>
+            ) : (
+              <p>기록된 감정이 없습니다.</p>
+            )}
+          </div>
+        </Graph_Modal>
+      )}
     </div>
   );
 };

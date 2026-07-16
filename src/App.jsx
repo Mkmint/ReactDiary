@@ -9,6 +9,7 @@ import React, { useReducer, useRef, useState, useEffect} from 'react';
 import {mockData} from './components/mockData';
 import Graph from './components/Graph';
 import Graph_Monthly from './components/Graph_Monthly';
+import Graph_Modal from './components/Graph_Modal';
 
 //정적상태(diary data)
 export const DiaryStateContext = React.createContext();
